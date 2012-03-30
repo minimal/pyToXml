@@ -1,7 +1,19 @@
 from types import (DictType, StringTypes, IntType, FloatType,
                    TupleType, ListType)
 
-from lxml import etree
+try:
+    from lxml import etree
+except ImportError:
+    try:
+        import xml.etree.cElementTree as etree
+        print "Using cElemenTree"
+    except ImportError:
+        try:
+            import xml.etree.ElementTree as etree
+            print "Using ElemenTree"
+        except ImportError:
+            print "Failed to import ElementTree"
+            raise
 
 
 class PyToXml(object):
@@ -14,6 +26,8 @@ class PyToXml(object):
         self.structure = structure
         self.encoding = encoding
         self.xml_declaration = xml_declaration
+        if xml_declaration and not etree.__name__ == "lxml.etree":
+            raise TypeError("Not using lxml, can't use xml_declaration")
 
     def pluralisation(self, plural):
         """Returns a string that is suitable for elements of a
@@ -57,6 +71,10 @@ class PyToXml(object):
 
     def __str__(self):
         """Output the XML."""
-        return etree.tostring(self.root,
-                              encoding=self.encoding,
-                              xml_declaration=self.xml_declaration)
+        if self.xml_declaration:
+            return etree.tostring(self.root,
+                                  encoding=self.encoding,
+                                  xml_declaration=self.xml_declaration)
+        else:
+            return etree.tostring(self.root,
+                                  encoding=self.encoding)
