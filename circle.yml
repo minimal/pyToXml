@@ -1,3 +1,6 @@
 test:
   override:
     - py.test --junitxml=junit.xml
+dependencies:
+  pre:
+    - pip install pytest
